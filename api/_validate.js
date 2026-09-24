@@ -1,5 +1,14 @@
 const SEVERITIES = ["baja", "media", "alta", "critica"];
 
+export const ROLES = ["admin", "reviewer", "user"];
+export const STATUSES = ["reportado", "en_revision", "aprobado", "rechazado"];
+export const TRANSITIONS = {
+  reportado: ["en_revision"],
+  en_revision: ["aprobado", "rechazado", "reportado"],
+  aprobado: ["en_revision"],
+  rechazado: ["en_revision"]
+};
+
 export function validateIncident(body, { partial = false } = {}) {
   const errors = [];
   const data = {};
@@ -39,6 +48,37 @@ export function validateIncident(body, { partial = false } = {}) {
 
   if (body.comments !== undefined) {
     data.comments = String(body.comments ?? "");
+  }
+
+  return { errors, data };
+}
+
+export function validateUser(body, { partial = false } = {}) {
+  const errors = [];
+  const data = {};
+
+  if (!partial || body.name !== undefined) {
+    if (!body.name) errors.push("Falta el campo \"name\"");
+    else data.name = body.name;
+  }
+
+  if (!partial || body.email !== undefined) {
+    if (!body.email) errors.push("Falta el campo \"email\"");
+    else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(body.email)) {
+      errors.push("El campo \"email\" debe ser un email válido");
+    } else data.email = body.email;
+  }
+
+  if (!partial || body.password !== undefined) {
+    if (!body.password) errors.push("Falta el campo \"password\"");
+    else if (body.password.length < 6) errors.push("La contraseña debe tener al menos 6 caracteres");
+    else data.password = body.password;
+  }
+
+  if (body.role !== undefined) {
+    if (body.role && !ROLES.includes(body.role)) {
+      errors.push(`El campo "role" debe ser uno de: ${ROLES.join(", ")}`);
+    } else data.role = body.role;
   }
 
   return { errors, data };

@@ -1,5 +1,5 @@
 import { useMemo } from "react";
-import { SEVERITIES } from "../constants";
+import { SEVERITIES, STATUSES } from "../constants";
 import { monthLabel } from "../utils";
 
 const WD = ["D", "L", "M", "X", "J", "V", "S"];
@@ -7,10 +7,12 @@ const WDNAME = ["dom", "lun", "mar", "mié", "jue", "vie", "sáb"];
 
 function useStats(incidents) {
   return useMemo(() => {
-    const s = { total: incidents.length, ambulanceYes: 0, sev: {}, hour: {}, wd: {}, month: {} };
+    const s = { total: incidents.length, ambulanceYes: 0, sev: {}, status: {}, hour: {}, wd: {}, month: {} };
     for (const i of incidents) {
       if (i.ambulance) s.ambulanceYes++;
       s.sev[i.severity] = (s.sev[i.severity] || 0) + 1;
+      const st = i.status || "reportado";
+      s.status[st] = (s.status[st] || 0) + 1;
       const h = Number(i.time.split(":")[0]);
       s.hour[h] = (s.hour[h] || 0) + 1;
       const d = new Date(`${i.date}T00:00:00`).getDay();
@@ -26,7 +28,15 @@ function useStats(incidents) {
     for (const k of Object.keys(s.sev)) {
       sevPerc[k] = s.total ? Math.round((s.sev[k] / s.total) * 100) : 0;
     }
-    return { ...s, maxSev, maxHour, maxWd, sevPerc, ambPerc: s.total ? Math.round((s.ambulanceYes / s.total) * 100) : 0 };
+    return {
+      ...s,
+      maxSev,
+      maxHour,
+      maxWd,
+      sevPerc,
+      ambPerc: s.total ? Math.round((s.ambulanceYes / s.total) * 100) : 0,
+      aprobPerc: s.total ? Math.round(((s.status.aprobado || 0) / s.total) * 100) : 0
+    };
   }, [incidents]);
 }
 
@@ -54,6 +64,25 @@ export default function Metrics({ incidents, loading }) {
         <div className="kpi-card">
           <span className="kpi-card__label">Críticos</span>
           <span className="kpi-card__value">{s.sev.critica || 0}</span>
+        </div>
+      </div>
+
+      <div className="metric-block">
+        <h2 className="metric-block__title">Por estado</h2>
+        <div className="status-chart">
+          {STATUSES.map((x) => {
+            const n = s.status[x.id] || 0;
+            return (
+              <div key={x.id} className="status-count">
+                <span className={`chip chip--estado-${x.id}`}>{x.label}</span>
+                <span className="status-count__value">{n}</span>
+              </div>
+            );
+          })}
+          <div className="status-count status-count--aprob">
+            <span className="status-count__label">% aprobados</span>
+            <span className="status-count__value">{s.aprobPerc}%</span>
+          </div>
         </div>
       </div>
 

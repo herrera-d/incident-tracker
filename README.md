@@ -34,3 +34,22 @@ Pasos:
 
 - Local: `npm run build` verde; probar registro/edición/borrado en http://localhost:5173.
 - Producción: `https://<proyecto>.vercel.app/api/incidents` debe responder JSON.
+
+## Cuentas y roles
+
+| Rol | Qué puede hacer |
+|---|---|
+| `user` | Registrar incidentes (quedan en `reportado`). Ver/editar/borrar solo los suyos. |
+| `reviewer` | Lo de `user` + revisar/decidir estados (`reportado → en_revision → aprobado/rechazado`). |
+| `admin` | Lo de `reviewer` + alta de usuarios y cambio de roles (pestaña "Usuarios"). |
+
+- Sin login la app funciona como `user` anónimo; puede editar/borrar los incidentes que
+  creó en la misma sesión (token de propietario en `localStorage`).
+- Sesión con JWT en `localStorage` (`keys` `it_token` / `it_owner_token`). Riesgo XSS
+  documentado; alternativa más segura: cookie `HttpOnly`.
+- Cuenta admin inicial sembrada con `node scripts/seed-admin.mjs`
+  (lee `ADMIN_EMAIL`/`ADMIN_PASSWORD` de `.env`; con `--neon` siembra la BD Neon).
+- Migraciones de esquema idempotentes:
+  - SQLite: `npm run db:migrate:roles`
+  - Neon: `node scripts/apply-neon-roles-schema.mjs`
+- Variables nuevas: `JWT_SECRET`, `ADMIN_EMAIL`, `ADMIN_PASSWORD` (ver `.env.example`).

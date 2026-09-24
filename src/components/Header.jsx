@@ -1,10 +1,4 @@
-const TABS = [
-  { id: "registro", label: "Registro" },
-  { id: "historial", label: "Historial" },
-  { id: "metricas", label: "Métricas" }
-];
-
-export default function Header({ tab, setTab, total }) {
+export default function Header({ tab, setTab, total, tabs, user, onLogin, onLogout }) {
   return (
     <header className="site-header">
       <div className="site-header__inner">
@@ -25,7 +19,7 @@ export default function Header({ tab, setTab, total }) {
         </div>
 
         <nav className="tab-nav" aria-label="Secciones">
-          {TABS.map((t) => (
+          {tabs.map((t) => (
             <button
               key={t.id}
               className={`tab ${tab === t.id ? "is-active" : ""}`}
@@ -35,6 +29,22 @@ export default function Header({ tab, setTab, total }) {
             </button>
           ))}
         </nav>
+
+        <div className="user-meta">
+          {user.id ? (
+            <>
+              <span className="user-meta__name">{user.name}</span>
+              <span className={`role-badge role-badge--${user.role}`}>{user.role}</span>
+              <button className="btn btn--ghost btn--sm" onClick={onLogout}>
+                Salir
+              </button>
+            </>
+          ) : (
+            <button className="btn btn--primary btn--sm" onClick={onLogin}>
+              Iniciar sesión
+            </button>
+          )}
+        </div>
 
         <div className="header-total">
           <span className="header-total__label">Registrados</span>

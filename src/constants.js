@@ -16,6 +16,20 @@ export const WEEKDAYS = [
   "Domingo", "Lunes", "Martes", "Miércoles", "Jueves", "Viernes", "Sábado"
 ];
 
+export const STATUSES = [
+  { id: "reportado", label: "Reportado" },
+  { id: "en_revision", label: "En revisión" },
+  { id: "aprobado", label: "Aprobado" },
+  { id: "rechazado", label: "Rechazado" }
+];
+
+export const STATUS_LABELS = {
+  reportado: "Reportado",
+  en_revision: "En revisión",
+  aprobado: "Aprobado",
+  rechazado: "Rechazado"
+};
+
 export const AMBULANCE = "ambulance";
 export const DATE = "date";
 export const DAY = "day";
